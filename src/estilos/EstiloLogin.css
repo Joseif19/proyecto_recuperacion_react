@@ -1,132 +1,111 @@
-.container {
-    position: relative;
-    width: 400px;
-    height: 400px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    overflow: hidden;
-  }
-  
-  .container span {
-    position: absolute;
-    left: 0;
-    width: 32px;
-    height: 6px;
-    background: #2c4766;
-    border-radius: 80px;
-    transform-origin: 200px;
-    transform: rotate(calc(var(--i) * (360deg / 50)));
-    animation: blink 3s linear infinite;
-    animation-delay: calc(var(--i) * (3s / 50));
-  }
-  
-  @keyframes blink {
-    0% {
-      background: #0ef;
-    }
-    25% {
-      background: #2c4766;
-    }
-  }
-  
-  .login-box {
-    position: absolute;
-    width: 80%;
-    max-width: 300px;
-    z-index: 1;
-    padding: 20px;
-    border-radius: 20px;
-  }
-  
-  form {
-    width: 100%;
-    padding: 0 10px;
-  }
-  
-  h2 {
-    font-size: 1.8em;
-    color: #0ef;
-    text-align: center;
-    margin-bottom: 10px;
-  }
-  
-  .input-box {
-    position: relative;
-    margin: 15px 0;
-  }
-  
-  input {
-    width: 100%;
-    height: 45px;
-    background: transparent;
-    border: 2px solid #2c4766;
-    outline: none;
-    border-radius: 40px;
-    font-size: 1em;
-    color: #fff;
-    padding: 0 15px;
-    transition: 0.5s ease;
-  }
-  
-  input:focus {
-    border-color: #0ef;
-  }
-  
-  input[value]:not([value=""]) ~ label,
-  input:focus ~ label {
-    top: -10px;
-    font-size: 0.8em;
-    background: #1f293a;
-    padding: 0 6px;
-    color: #0ef;
-  }
-  
-  label {
-    position: absolute;
-    top: 50%;
-    left: 15px;
-    transform: translateY(-50%);
-    font-size: 1em;
-    pointer-events: none;
-    transition: 0.5s ease;
-    color: #fff;
-  }
-  
-  .forgot-pass {
-    margin: -10px 0 10px;
-    text-align: center;
-  }
-  
-  .forgot-pass a {
-    font-size: 0.85em;
-    color: #fff;
-    text-decoration: none;
-  }
-  
-  .btn {
-    width: 100%;
-    height: 45px;
-    background: #0ef;
-    border: none;
-    outline: none;
-    border-radius: 40px;
-    cursor: pointer;
-    font-size: 1em;
-    color: #1f293a;
-    font-weight: 600;
-  }
-  
-  .signup-link {
-    margin: 10px 0;
-    text-align: center;
-  }
-  
-  .signup-link a {
-    font-size: 1em;
-    color: #0ef;
-    text-decoration: none;
-    font-weight: 600;
-  }
-  
+body {
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: sans-serif;
+  margin: 0;
+}
+
+.form-ui {
+  background: #111;
+  color: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 40px #00ff7f;
+  width: 320px;
+  transition: height 0.5s ease, transform 0.5s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.formulario-contenedor {
+  position: relative;
+  width: 100%;
+  height: auto;
+  transition: height 0.4s ease;
+  overflow: hidden;
+}
+
+.formulario {
+  width: 100%;
+}
+
+
+.formulario.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#welcome-line-1 {
+  font-size: 26px;
+  font-weight: bold;
+  color: #00ff7f;
+  text-align: center;
+}
+
+#welcome-line-2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-inp {
+  margin-bottom: 15px;
+}
+
+.form-inp input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #00ff7f;
+  background: #000;
+  color: white;
+  border-radius: 5px;
+}
+
+#submit-button-cvr {
+  text-align: center;
+}
+
+#submit-button {
+  background: #00ff7f;
+  color: black;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#forgot-pass {
+  text-align: center;
+  margin-top: 15px;
+}
+
+#forgot-pass span {
+  color: #00ff7f;
+  cursor: pointer;
+}
+
+#dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#dots span {
+  width: 10px;
+  height: 10px;
+  background: #555;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+#dots span.active {
+  background: #00ff7f;
+}
