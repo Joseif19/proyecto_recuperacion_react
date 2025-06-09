@@ -1,28 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginFormulario from './componentes/LoginFormulario';
 import RegistroFormulario from './componentes/RegistroFormulario';
-import BuscadorCanciones from './componentes/BuscadorCanciones';
-import './estilos/EstiloLogin.css';
+import Principal from './componentes/Principal';
+import Perfil from './componentes/Perfil';
+import CrearPlaylist from './componentes/CrearPlaylist';
+import UnirsePlaylist from './componentes/UnirsePlaylist';
 
 export default function App() {
-  const [modo, setModo] = useState('login'); // 'login' o 'registro'
-
   return (
-    <div className={`form-ui ${modo === 'registro' ? 'registro-mode' : ''}`}>
-      {modo === 'login' ? (
-        <LoginFormulario cambiarModo={() => setModo('registro')} />
-      ) : (
-        <RegistroFormulario cambiarModo={() => setModo('login')} />
-      )}
-      <div id="dots">
-        <span className={modo === 'login' ? 'active' : ''}></span>
-        <span className={modo === 'registro' ? 'active' : ''}></span>
-      </div>
-      <div>
-        <BuscadorCanciones />
-      </div>
+    <div className="form-ui">
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LoginFormulario />} />
+        <Route path="/registro" element={<RegistroFormulario />} />
+        <Route path="/principal" element={<Principal />} />
+        <Route path="/perfil" element={<Perfil />} />
+        <Route path="/crear-playlist" element={<CrearPlaylist />} />
+        <Route path="/unirse-playlist" element={<UnirsePlaylist />} />
+      </Routes>
     </div>
-
-    
   );
 }

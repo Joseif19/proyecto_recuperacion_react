@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function BuscadorCanciones() {
+export default function BuscadorCanciones({ onSeleccionarCancion }) {
   const [query, setQuery] = useState('');
   const [canciones, setCanciones] = useState([]);
   const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ export default function BuscadorCanciones() {
     setCargando(true);
 
     try {
-      const response = await fetch(`http://localhost:3000/buscar?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/buscar?q=${encodeURIComponent(query)}`);
       if (!response.ok) {
         throw new Error('Error al buscar canciones');
       }
@@ -33,7 +33,7 @@ export default function BuscadorCanciones() {
 
   return (
     <div style={{ maxWidth: 600, margin: 'auto', padding: 20, color: 'white', backgroundColor: '#111', borderRadius: 12 }}>
-      <h2>Buscador de canciones Spotify</h2>
+      <h3>Buscador de canciones Spotify</h3>
       <form onSubmit={manejarSubmit} style={{ marginBottom: 20 }}>
         <input
           type="text"
@@ -56,6 +56,18 @@ export default function BuscadorCanciones() {
             <strong>{cancion.name}</strong> — {cancion.artists.map(a => a.name).join(', ')}
             <br />
             <audio controls src={cancion.preview_url} style={{ marginTop: 5, width: '100%' }} />
+            <button
+              onClick={() => onSeleccionarCancion && onSeleccionarCancion({
+                spotifyId: cancion.id,
+                titulo: cancion.name,
+                artista: cancion.artists.map(a => a.name).join(', '),
+                album: cancion.album?.name || '',
+                imagenUrl: cancion.album?.images?.[0]?.url || '',
+              })}
+              style={{ marginTop: 8, padding: '5px 10px', borderRadius: 5, backgroundColor: '#00ff7f', border: 'none', cursor: 'pointer' }}
+            >
+              Añadir
+            </button>
           </li>
         ))}
       </ul>

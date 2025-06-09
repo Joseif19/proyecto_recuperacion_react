@@ -1,4 +1,13 @@
-body {
+.login-registro {
+  height: 100vh; 
+  display: flex;
+  justify-content: center;
+  align-items: center;    
+  background: #000;        
+}
+
+
+.login-registro body {
   background: #000;
   display: flex;
   justify-content: center;
@@ -8,7 +17,7 @@ body {
   margin: 0;
 }
 
-.form-ui {
+.login-registro .form-ui {
   background: #111;
   color: white;
   padding: 40px;
@@ -20,7 +29,7 @@ body {
   position: relative;
 }
 
-.formulario-contenedor {
+.login-registro .formulario-contenedor {
   position: relative;
   width: 100%;
   height: auto;
@@ -28,38 +37,39 @@ body {
   overflow: hidden;
 }
 
-.formulario {
+.login-registro .formulario {
   width: 100%;
 }
 
-
-.formulario.visible {
+.login-registro .formulario.visible {
   opacity: 1;
   pointer-events: auto;
 }
 
-#welcome-line-1 {
+/* Y así para el resto de selectores: */
+
+.login-registro #welcome-line-1 {
   font-size: 26px;
   font-weight: bold;
   color: #00ff7f;
   text-align: center;
 }
 
-#welcome-line-2 {
+.login-registro #welcome-line-2 {
   text-align: center;
   margin-bottom: 20px;
 }
 
-#form {
+.login-registro #form {
   display: flex;
   flex-direction: column;
 }
 
-.form-inp {
+.login-registro .form-inp {
   margin-bottom: 15px;
 }
 
-.form-inp input {
+.login-registro .form-inp input {
   width: 100%;
   padding: 10px;
   border: 1px solid #00ff7f;
@@ -68,11 +78,11 @@ body {
   border-radius: 5px;
 }
 
-#submit-button-cvr {
+.login-registro #submit-button-cvr {
   text-align: center;
 }
 
-#submit-button {
+.login-registro #submit-button {
   background: #00ff7f;
   color: black;
   padding: 10px 20px;
@@ -81,24 +91,24 @@ body {
   cursor: pointer;
 }
 
-#forgot-pass {
+.login-registro #forgot-pass {
   text-align: center;
   margin-top: 15px;
 }
 
-#forgot-pass span {
+.login-registro #forgot-pass span {
   color: #00ff7f;
   cursor: pointer;
 }
 
-#dots {
+.login-registro #dots {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
 }
 
-#dots span {
+.login-registro #dots span {
   width: 10px;
   height: 10px;
   background: #555;
@@ -106,6 +116,6 @@ body {
   transition: background-color 0.3s ease;
 }
 
-#dots span.active {
+.login-registro #dots span.active {
   background: #00ff7f;
 }
