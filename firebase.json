@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "public": "build",
+    "site": "partysync-b0c4b-3c4fa",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
