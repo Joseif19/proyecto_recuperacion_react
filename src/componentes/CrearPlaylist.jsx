@@ -6,12 +6,13 @@ import { UserContext } from '../contexts/UserContext';
 import BuscadorCanciones from './BuscadorCanciones';
 
 const defaultImages = [
-  'https://i.imgur.com/1.png',
-  'https://i.imgur.com/2.png',
-  'https://i.imgur.com/3.png',
-  'https://i.imgur.com/4.png',
-  'https://i.imgur.com/5.png',
-  'https://i.imgur.com/6.png',
+  '/imagenes/perfil1.png',
+  '/imagenes/perfil2.png',
+  '/imagenes/perfil3.png',
+  '/imagenes/perfil4.png',
+  '/imagenes/perfil5.png',
+  '/imagenes/perfil6.png',
+  '/imagenes/perfil7.png',
 ];
 
 export default function CrearPlaylist() {
@@ -104,14 +105,7 @@ export default function CrearPlaylist() {
             rows="3"
           />
 
-          <label>Privacidad</label>
-          <select
-            value={privacidad}
-            onChange={(e) => setPrivacidad(e.target.value)}
-          >
-            <option value="publica">Pública</option>
-            <option value="privada">Privada</option>
-          </select>
+          {/* Apartado de Privacidad eliminado */}
 
           <button className="btn-crear" type="submit">
             Crear Playlist
@@ -124,6 +118,7 @@ export default function CrearPlaylist() {
         <div className="seleccion-portada">
           <h3>Elige portada</h3>
           <div className="imagenes-portada">
+            {/* 4 imágenes arriba */}
             {defaultImages.slice(0, 4).map((img, i) => (
               <img
                 key={i}
@@ -138,7 +133,8 @@ export default function CrearPlaylist() {
             ))}
 
             <div className="fila-inferior">
-              {defaultImages.slice(4, 6).map((img, i) => (
+              {/* 4 imágenes abajo */}
+              {defaultImages.slice(4, 8).map((img, i) => (
                 <img
                   key={i}
                   src={img}
@@ -150,6 +146,7 @@ export default function CrearPlaylist() {
                   }}
                 />
               ))}
+              {/* Botón para imagen personalizada */}
               <label className="input-file-label" title="Subir imagen personalizada">
                 +
                 <input
@@ -167,7 +164,7 @@ export default function CrearPlaylist() {
         <div style={{ marginTop: 40, color: 'white' }}>
           <BuscadorCanciones
             onSeleccionarCancion={(cancion) => {
-              if (!cancionesSeleccionadas.find(c => c.spotifyId === cancion.spotifyId)) {
+              if (!cancionesSeleccionadas.find(c => c.cancionId === cancion.cancionId)) {
                 setCancionesSeleccionadas([...cancionesSeleccionadas, cancion]);
               }
             }}
@@ -177,7 +174,7 @@ export default function CrearPlaylist() {
           <ul>
             {cancionesSeleccionadas.map((c, i) => (
               <li key={i} style={{ marginBottom: 5 }}>
-                {c.titulo} — {c.artista}
+                {c.nombre} — {c.artista}
                 <button
                   onClick={() => setCancionesSeleccionadas(cancionesSeleccionadas.filter((_, idx) => idx !== i))}
                   style={{ marginLeft: 10, cursor: 'pointer' }}
