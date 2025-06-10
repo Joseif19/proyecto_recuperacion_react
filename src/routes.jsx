@@ -19,6 +19,7 @@ export default function RouterApp() {
       <Route path="/unirse-playlist" element={<UnirsePlaylist />} />
       {/* Si la ruta no existe, redirige a login */}
       <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/playlist/:id" element={<DetallesPlaylist />} />
     </Routes>
   );
 }

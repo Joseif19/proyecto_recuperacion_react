@@ -6,6 +6,7 @@ import Principal from './componentes/Principal';
 import Perfil from './componentes/Perfil';
 import CrearPlaylist from './componentes/CrearPlaylist';
 import UnirsePlaylist from './componentes/UnirsePlaylist';
+import DetallesPlaylist from './componentes/DetallesPlaylist';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/crear-playlist" element={<CrearPlaylist />} />
         <Route path="/unirse-playlist" element={<UnirsePlaylist />} />
+        <Route path="/playlist/:id" element={<DetallesPlaylist />} />
       </Routes>
     </div>
   );

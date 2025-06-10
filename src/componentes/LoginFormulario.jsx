@@ -26,7 +26,6 @@ export default function LoginFormulario() {
 
       setUser(response.data);
 
-      alert('Inicio de sesión exitoso');
       navigate('/principal'); // Redirige a página principal
     } catch (err) {
       setError('Credenciales inválidas o error en la conexión');

@@ -37,13 +37,7 @@ export default function BuscadorCanciones({ onSeleccionarCancion }) {
     }
   }
 
-  function manejarSubmit(e) {
-    e.preventDefault();
-    // Ya no es necesario llamar a buscar aquí, porque el efecto lo hace automáticamente
-  }
-
   function añadirCancion(cancion) {
-
     onSeleccionarCancion && onSeleccionarCancion(cancion);
     setQuery('');
     setCanciones([]);
@@ -52,7 +46,8 @@ export default function BuscadorCanciones({ onSeleccionarCancion }) {
   return (
     <div style={{ maxWidth: 600, margin: 'auto', padding: 20, color: 'white', backgroundColor: '#111', borderRadius: 12, position: 'relative' }}>
       <h3>¡Añade canciones a tu playlist!</h3>
-      <form onSubmit={manejarSubmit} style={{ marginBottom: 20, position: 'relative' }}>
+      {/* Cambiado de <form> a <div> */}
+      <div style={{ marginBottom: 20, position: 'relative' }}>
         <input
           type="text"
           placeholder="Buscar canciones..."
@@ -60,8 +55,10 @@ export default function BuscadorCanciones({ onSeleccionarCancion }) {
           onChange={(e) => setQuery(e.target.value)}
           style={{ padding: 10, width: '80%', borderRadius: 5, border: '1px solid #00ff7f' }}
           autoComplete="off"
+          onKeyDown={e => {
+            if (e.key === 'Enter') e.preventDefault();
+          }}
         />
-        {/* Botón de buscar eliminado */}
         {/* Autocomplete dropdown */}
         {Array.isArray(canciones) && canciones.length > 0 && query && (
           <ul style={{
@@ -100,9 +97,8 @@ export default function BuscadorCanciones({ onSeleccionarCancion }) {
             ))}
           </ul>
         )}
-      </form>
+      </div>
       {/* Lista de canciones añadidas */}
-      
       {cargando && <p>Cargando...</p>}
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
       {Array.isArray(canciones) && canciones.length === 0 && !cargando && !error && query.length >= 3 && (

@@ -34,7 +34,6 @@ export default function RegistroFormulario() {
         playlistsUnidas: 0
       });
 
-      alert('Cuenta creada con éxito');
       navigate('/login'); // Redirige a login para iniciar sesión
     } catch (err) {
       setError('Error al registrar usuario: ' + err.message);
