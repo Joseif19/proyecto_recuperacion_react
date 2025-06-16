@@ -23,7 +23,7 @@ export default function BuscadorCanciones({ onSeleccionarCancion }) {
     setCargando(true);
 
     try {
-      const response = await fetch(`/api/deezer/buscar?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/deezer/buscar?q=${encodeURIComponent(query)}`);
       if (!response.ok) {
         throw new Error('Error al buscar canciones');
       }

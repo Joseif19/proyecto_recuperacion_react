@@ -23,7 +23,7 @@ export default function LoginFormulario() {
 
       // Petición a microservicio para obtener datos extras
       const response = await axios.get(`http://partysync-react.us-east-1.elasticbeanstalk.com:82/api/v1/usuarios/${firebaseUid}`);
-
+      
       setUser(response.data);
 
       navigate('/principal'); // Redirige a página principal
