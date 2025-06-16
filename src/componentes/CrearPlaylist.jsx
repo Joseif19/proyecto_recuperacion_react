@@ -26,6 +26,7 @@ export default function CrearPlaylist() {
   const [exito, setExito] = useState('');
   const [cancionesSeleccionadas, setCancionesSeleccionadas] = useState([]);
 
+
   const handleImagenPersonalizada = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -48,13 +49,17 @@ export default function CrearPlaylist() {
       return;
     }
 
+    if (cancionesSeleccionadas.length === 0) {
+      setError('Debes añadir al menos una canción a la playlist');
+      return;
+    }
+
     if (!user) {
       setError('No se ha detectado usuario autenticado');
       return;
     }
 
     try {
-      // Crear playlist
       const { data: playlistCreada } = await axios.post('http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists', {
         nombre,
         descripcion,
@@ -64,9 +69,11 @@ export default function CrearPlaylist() {
         usuarioId: user.firebaseUid || user.uid || '',
       });
 
-      // Añadir canciones
       for (const cancion of cancionesSeleccionadas) {
-        await axios.post(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${playlistCreada.id}/canciones`, cancion);
+        await axios.post(
+          `http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${playlistCreada.id}/canciones?usuarioId=${user.firebaseUid || user.uid || ''}`,
+          cancion
+        );
       }
 
       setExito(`Playlist creada con éxito con ${cancionesSeleccionadas.length} canción(es)`);
@@ -80,6 +87,7 @@ export default function CrearPlaylist() {
       setError('Error al crear la playlist: ' + (err.response?.data || err.message));
     }
   };
+
 
   return (
     <>

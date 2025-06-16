@@ -24,6 +24,14 @@ export default function UnirsePlaylist() {
     fetchPlaylists();
   }, []);
 
+  // Permite quitar una playlist de la lista (puedes llamarla desde Perfil.jsx si usas contexto)
+  const quitarPlaylist = (id) => {
+    setPlaylists(prev => prev.filter(p => p.id !== id));
+  };
+
+  // Si quieres exponer quitarPlaylist para usarla desde fuera:
+  // window.quitarPlaylistGlobal = quitarPlaylist;
+
   const playlistsFiltradas = playlists.filter(
     (p) =>
       p.publica !== false &&
@@ -193,3 +201,6 @@ export default function UnirsePlaylist() {
     </>
   );
 }
+
+// Exporta quitarPlaylist si quieres llamarla desde Perfil.jsx usando contexto o eventos
+// export { quitarPlaylist };

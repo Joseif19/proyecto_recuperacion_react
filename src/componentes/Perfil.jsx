@@ -14,7 +14,6 @@ export default function Perfil() {
     fetch('http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists')
       .then(res => res.json())
       .then(data => {
-        // Filtra playlists donde el creador sea el usuario actual
         const creadas = data.filter(p => p.usuarioId === user.firebaseUid);
         setPlaylistsCreadas(creadas);
       })
@@ -29,6 +28,24 @@ export default function Perfil() {
       .then(data => setPlaylistsUnidas(data))
       .catch(() => setPlaylistsUnidas([]));
   }, [user]);
+
+  // Función para borrar playlist creada
+  const handleBorrarPlaylist = async (playlistId) => {
+    if (!window.confirm('¿Seguro que quieres borrar esta playlist?')) return;
+    try {
+      const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${playlistId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setPlaylistsCreadas(prev => prev.filter(p => p.id !== playlistId));
+        setPlaylistsUnidas(prev => prev.filter(p => p.id !== playlistId)); // <-- Añade esta línea
+      } else {
+        alert('No se pudo borrar la playlist');
+      }
+    } catch {
+      alert('Error al borrar la playlist');
+    }
+  };
 
   return (
     <>
@@ -81,7 +98,6 @@ export default function Perfil() {
             boxShadow: '0 4px 32px #000a',
             marginBottom: 40
           }}>
-            {/* Datos personales */}
             <div style={{ flex: 1, textAlign: 'right', paddingRight: 40 }}>
               <p style={{ color: '#b3b3b3', fontSize: 18, marginBottom: 10 }}>
                 <strong>Nombre de usuario:</strong> {user?.username || user?.nombreUsuario || 'No disponible'}
@@ -90,7 +106,6 @@ export default function Perfil() {
                 <strong>ID usuario:</strong> {user?.firebaseUid || user?.uid || 'No disponible'}
               </p>
             </div>
-            {/* Imagen de perfil fija */}
             <div style={{ flex: 0, textAlign: 'center', position: 'relative' }}>
               <img
                 src="/imagenes/avatar_pred.jpg"
@@ -106,7 +121,6 @@ export default function Perfil() {
                 }}
               />
             </div>
-            {/* Estadísticas */}
             <div style={{ flex: 1, textAlign: 'left', paddingLeft: 40 }}>
               <p style={{ color: '#1db954', fontSize: 22, marginBottom: 10 }}>
                 <strong>Playlists creadas:</strong> {playlistsCreadas.length}
@@ -116,6 +130,67 @@ export default function Perfil() {
               </p>
             </div>
           </div>
+
+          {/* Playlists creadas */}
+          <div style={{
+            background: 'rgba(34,34,34,0.97)',
+            borderRadius: 16,
+            padding: 24,
+            boxShadow: '0 2px 16px #0007',
+            marginBottom: 32
+          }}>
+            <h3 style={{ color: '#fff', marginBottom: 18 }}>Playlists que has creado</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+              {Array.isArray(playlistsCreadas) && playlistsCreadas.length === 0 && (
+                <p style={{ color: '#aaa' }}>No has creado ninguna playlist.</p>
+              )}
+              {Array.isArray(playlistsCreadas) && playlistsCreadas.map((playlist) => (
+                <div
+                  key={playlist.id}
+                  style={{
+                    background: '#222',
+                    border: '1px solid #1db954',
+                    borderRadius: 10,
+                    padding: 16,
+                    width: 260,
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                >
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleBorrarPlaylist(playlist.id);
+                    }}
+                    title="Borrar playlist"
+                    style={{
+                      position: 'absolute',
+                      bottom: 10, // Cambiado de top: 10 a bottom: 10
+                      right: 10,
+                      background: 'none',
+                      border: 'none',
+                      color: '#ff3b3b',
+                      fontSize: 22,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🗑️
+                  </button>
+                  <img
+                    src={playlist.imagenUrl}
+                    alt={playlist.nombre}
+                    style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8, marginBottom: 10 }}
+                  />
+                  <h4 style={{ margin: '10px 0 5px 0', color: '#1db954' }}>{playlist.nombre}</h4>
+                  <p style={{ margin: 0, color: '#ccc' }}>Por: {playlist.nombreUsuario}</p>
+                  <p style={{ margin: '8px 0 0 0', color: '#aaa', fontSize: 14 }}>
+                    {playlist.descripcion}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Playlists unidas */}
           <div style={{
             background: 'rgba(34,34,34,0.97)',
@@ -155,7 +230,6 @@ export default function Perfil() {
             </div>
           </div>
         </div>
-        {/* Botón volver abajo y centrado */}
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 40 }}>
           <BotonVolver texto="Volver" />
         </div>

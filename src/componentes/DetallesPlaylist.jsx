@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import Navbar from './Navbar';
 import { UserContext } from '../contexts/UserContext';
 import BotonVolver from './BotonVolver';
+import BuscadorCanciones from './BuscadorCanciones';
 
 export default function DetallesPlaylist() {
     const { id } = useParams();
@@ -14,32 +15,32 @@ export default function DetallesPlaylist() {
     const [orden, setOrden] = useState('desc');
     const [likes, setLikes] = useState({});
     const [unido, setUnido] = useState(false);
+    const [userLikes, setUserLikes] = useState({});
 
     useEffect(() => {
-    async function fetchPlaylist() {
-        setCargando(true);
-        setError('');
-        try {
-            const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${id}`);
-            if (!res.ok) throw new Error('No se pudo cargar la playlist');
-            const data = await res.json();
-            console.log('Playlist recibida:', data); // <-- Aquí
-            setPlaylist(data);
-            setCanciones(data.canciones || []);
-        } catch (e) {
-            setError(e.message);
-        } finally {
-            setCargando(false);
+        async function fetchPlaylist() {
+            setCargando(true);
+            setError('');
+            try {
+                const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${id}`);
+                if (!res.ok) throw new Error('No se pudo cargar la playlist');
+                const data = await res.json();
+                setPlaylist(data);
+                setCanciones(data.canciones || []);
+            } catch (e) {
+                setError(e.message);
+            } finally {
+                setCargando(false);
+            }
         }
-    }
-    fetchPlaylist();
-}, [id]);
+        fetchPlaylist();
+    }, [id]);
 
     useEffect(() => {
         async function fetchLikes() {
             if (!canciones.length || !playlist) return;
+            const ids = canciones.map(c => c.cancionId).join(',');
             try {
-                const ids = canciones.map(c => c.cancionId).join(',');
                 const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com:81/api/v1/canciones/likes?salaId=${playlist.id}&canciones=${ids}`);
                 if (!res.ok) throw new Error('No se pudieron cargar los likes');
                 const data = await res.json();
@@ -48,6 +49,21 @@ export default function DetallesPlaylist() {
         }
         fetchLikes();
     }, [canciones, playlist]);
+
+    useEffect(() => {
+        async function fetchUserLikes() {
+            if (!user || !playlist || !canciones.length) return;
+            const ids = canciones.map(c => c.cancionId).join(',');
+            const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com:81/api/v1/canciones/user-likes?salaId=${playlist.id}&usuarioId=${user.firebaseUid}&canciones=${ids}`);
+            if (res.ok) {
+                const data = await res.json();
+                const likesObj = {};
+                data.forEach(id => { likesObj[id] = true; });
+                setUserLikes(likesObj);
+            }
+        }
+        fetchUserLikes();
+    }, [user, playlist, canciones]);
 
     useEffect(() => {
         if (playlist && user) {
@@ -62,59 +78,110 @@ export default function DetallesPlaylist() {
     });
 
     const handleUnirse = async () => {
-    if (!user || !user.firebaseUid) {
-        alert('Debes iniciar sesión para unirte a la playlist.');
-        return;
-    }
-    try {
-        const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${id}/unirse?usuarioId=${user.firebaseUid}`, {
-            method: 'POST'
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.message || 'No se pudo unir a la playlist');
-        setUnido(true);
-        // Actualiza la playlist localmente para incluir el usuario unido
-        setPlaylist(prev => ({
-            ...prev,
-            usuariosUnidos: [...(prev.usuariosUnidos || []), user.firebaseUid]
-        }));
-        alert('¡Te has unido a la playlist!');
-    } catch (e) {
-        alert(e.message);
-    }
-};
+        if (!user || !user.firebaseUid) {
+            alert('Debes iniciar sesión para unirte a la playlist.');
+            return;
+        }
+        try {
+            const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${id}/unirse?usuarioId=${user.firebaseUid}`, {
+                method: 'POST'
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data?.message || 'No se pudo unir a la playlist');
+            setUnido(true);
+            setPlaylist(prev => ({
+                ...prev,
+                usuariosUnidos: [...(prev.usuariosUnidos || []), user.firebaseUid]
+            }));
+            alert('¡Te has unido a la playlist!');
+        } catch (e) {
+            alert(e.message);
+        }
+    };
 
     const handleLike = async (cancionId) => {
         if (!user || !user.firebaseUid) {
             alert('Debes iniciar sesión para votar.');
             return;
         }
+        const liked = userLikes[cancionId];
         try {
-            const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com:81/api/v1/canciones/${cancionId}/votar`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    usuarioId: user.firebaseUid,
-                    salaId: playlist.id,
-                    voto: 1
-                })
-            });
-            if (!res.ok) throw new Error('No se pudo votar');
+            if (liked) {
+                await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com:81/api/v1/canciones/${cancionId}/votar?usuarioId=${user.firebaseUid}&salaId=${playlist.id}`, {
+                    method: 'DELETE'
+                });
+            } else {
+                await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com:81/api/v1/canciones/${cancionId}/votar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuarioId: user.firebaseUid,
+                        salaId: playlist.id,
+                        voto: 1
+                    })
+                });
+            }
             const ids = canciones.map(c => c.cancionId).join(',');
             const likesRes = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com:81/api/v1/canciones/likes?salaId=${playlist.id}&canciones=${ids}`);
             if (likesRes.ok) {
                 const data = await likesRes.json();
                 setLikes(data);
             }
+            setUserLikes(prev => ({
+                ...prev,
+                [cancionId]: !liked
+            }));
         } catch (e) {
             alert(e.message);
         }
     };
 
-    // Logs para depuración
-    console.log('user:', user);
-    console.log('user.firebaseUid:', user && user.firebaseUid);
-    console.log('unido:', unido);
+    // ----------- NUEVO: Añadir y eliminar canciones (solo creador) -----------
+    const esCreador = playlist && user && playlist.usuarioId === user.firebaseUid;
+
+    // Añadir canción desde el buscador
+    const handleSeleccionarCancion = async (cancion) => {
+        setError('');
+        try {
+            const res = await fetch(
+                `http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${playlist.id}/canciones?usuarioId=${user.firebaseUid}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cancion)
+                }
+            );
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || 'Error al añadir canción');
+            }
+            const updated = await res.json();
+            setPlaylist(updated);
+            setCanciones(updated.canciones || []);
+        } catch (e) {
+            setError(e.message);
+        }
+    };
+
+    const handleRemoveCancion = async (cancionId) => {
+        setError('');
+        try {
+            const res = await fetch(
+                `http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${playlist.id}/canciones/${cancionId}?usuarioId=${user.firebaseUid}`,
+                { method: 'DELETE' }
+            );
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || 'Error al eliminar canción');
+            }
+            const updated = await res.json();
+            setPlaylist(updated);
+            setCanciones(updated.canciones || []);
+        } catch (e) {
+            setError(e.message);
+        }
+    };
+    // ------------------------------------------------------------------------
 
     return (
         <>
@@ -137,7 +204,6 @@ export default function DetallesPlaylist() {
                     padding: 40,
                     boxShadow: '0 4px 32px #000a'
                 }}>
-                    {/* Imagen de perfil predeterminada */}
                     <img
                         src={playlist?.imagenUrl || "https://i.imgur.com/WP7mFmg.png"}
                         alt="Imagen Playlist"
@@ -180,7 +246,6 @@ export default function DetallesPlaylist() {
                         >
                             {unido ? 'Ya eres miembro' : 'Unirme'}
                         </button>
-                        {/* Feedback visual */}
                         {!user || !user.firebaseUid ? (
                             <p style={{ color: '#ff3b3b', marginTop: 8 }}>Debes iniciar sesión para unirte a la playlist.</p>
                         ) : unido ? (
@@ -224,6 +289,9 @@ export default function DetallesPlaylist() {
                                 <th style={{ textAlign: 'left', padding: '12px 8px' }}>Duración</th>
                                 <th style={{ textAlign: 'center', padding: '12px 8px' }}>Likes</th>
                                 <th style={{ textAlign: 'center', padding: '12px 8px' }}>Votar</th>
+                                {esCreador && (
+                                    <th style={{ textAlign: 'center', padding: '12px 8px' }}>Eliminar</th>
+                                )}
                             </tr>
                         </thead>
                         <tbody>
@@ -244,26 +312,49 @@ export default function DetallesPlaylist() {
                                             style={{
                                                 background: 'none',
                                                 border: 'none',
-                                                color: '#1db954',
+                                                color: userLikes[c.cancionId] ? '#e0245e' : '#1db954',
                                                 fontSize: 22,
                                                 cursor: 'pointer'
                                             }}
-                                            title="Me gusta"
+                                            title={userLikes[c.cancionId] ? "Quitar like" : "Dar like"}
                                         >
-                                            <span role="img" aria-label="like">👍</span>
+                                            {userLikes[c.cancionId] ? '❤️' : '🤍'}
                                         </button>
                                     </td>
+                                    {esCreador && (
+                                        <td style={{ textAlign: 'center', padding: '12px 8px' }}>
+                                            <button
+                                                onClick={() => handleRemoveCancion(c.cancionId)}
+                                                style={{
+                                                    background: '#e0245e',
+                                                    color: '#fff',
+                                                    border: 'none',
+                                                    borderRadius: 8,
+                                                    padding: '6px 16px',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
                             {cancionesOrdenadas.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} style={{ color: '#aaa', textAlign: 'center', padding: 30 }}>
+                                    <td colSpan={esCreador ? 7 : 6} style={{ color: '#aaa', textAlign: 'center', padding: 30 }}>
                                         No hay canciones en esta playlist.
                                     </td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
+                    {/* Buscador para añadir canción (solo creador) */}
+                    {esCreador && (
+                        <div style={{ marginTop: 32 }}>
+                            <BuscadorCanciones onSeleccionarCancion={handleSeleccionarCancion} />
+                        </div>
+                    )}
                 </div>
                 {cargando && (
                     <div style={{ color: '#fff', textAlign: 'center', marginTop: 40 }}>
@@ -275,7 +366,6 @@ export default function DetallesPlaylist() {
                         {error}
                     </div>
                 )}
-                {/* Botón volver abajo y centrado */}
                 <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 40 }}>
                     <BotonVolver texto="Volver" />
                 </div>
