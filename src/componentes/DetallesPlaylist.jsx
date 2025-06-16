@@ -16,23 +16,24 @@ export default function DetallesPlaylist() {
     const [unido, setUnido] = useState(false);
 
     useEffect(() => {
-        async function fetchPlaylist() {
-            setCargando(true);
-            setError('');
-            try {
-                const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${id}`);
-                if (!res.ok) throw new Error('No se pudo cargar la playlist');
-                const data = await res.json();
-                setPlaylist(data);
-                setCanciones(data.canciones || []);
-            } catch (e) {
-                setError(e.message);
-            } finally {
-                setCargando(false);
-            }
+    async function fetchPlaylist() {
+        setCargando(true);
+        setError('');
+        try {
+            const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${id}`);
+            if (!res.ok) throw new Error('No se pudo cargar la playlist');
+            const data = await res.json();
+            console.log('Playlist recibida:', data); // <-- Aquí
+            setPlaylist(data);
+            setCanciones(data.canciones || []);
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setCargando(false);
         }
-        fetchPlaylist();
-    }, [id]);
+    }
+    fetchPlaylist();
+}, [id]);
 
     useEffect(() => {
         async function fetchLikes() {
@@ -61,24 +62,27 @@ export default function DetallesPlaylist() {
     });
 
     const handleUnirse = async () => {
-        if (!user || !user.firebaseUid) {
-            alert('Debes iniciar sesión para unirte a la playlist.');
-            return;
-        }
-        console.log('Intentando unirse...', user.firebaseUid);
-        try {
-            const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${id}/unirse?usuarioId=${user.firebaseUid}`, {
-                method: 'POST'
-            });
-            const data = await res.json();
-            console.log('Respuesta del backend:', res.status, data);
-            if (!res.ok) throw new Error(data?.message || 'No se pudo unir a la playlist');
-            setUnido(true);
-            alert('¡Te has unido a la playlist!');
-        } catch (e) {
-            alert(e.message);
-        }
-    };
+    if (!user || !user.firebaseUid) {
+        alert('Debes iniciar sesión para unirte a la playlist.');
+        return;
+    }
+    try {
+        const res = await fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/playlists/${id}/unirse?usuarioId=${user.firebaseUid}`, {
+            method: 'POST'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.message || 'No se pudo unir a la playlist');
+        setUnido(true);
+        // Actualiza la playlist localmente para incluir el usuario unido
+        setPlaylist(prev => ({
+            ...prev,
+            usuariosUnidos: [...(prev.usuariosUnidos || []), user.firebaseUid]
+        }));
+        alert('¡Te has unido a la playlist!');
+    } catch (e) {
+        alert(e.message);
+    }
+};
 
     const handleLike = async (cancionId) => {
         if (!user || !user.firebaseUid) {
@@ -135,8 +139,8 @@ export default function DetallesPlaylist() {
                 }}>
                     {/* Imagen de perfil predeterminada */}
                     <img
-                        src="https://i.imgur.com/WP7mFmg.png"
-                        alt="Perfil"
+                        src={playlist?.imagenUrl || "https://i.imgur.com/WP7mFmg.png"}
+                        alt="Imagen Playlist"
                         style={{
                             width: 220,
                             height: 220,

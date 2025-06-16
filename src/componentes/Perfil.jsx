@@ -15,10 +15,19 @@ export default function Perfil() {
       .then(res => res.json())
       .then(data => {
         // Filtra playlists donde el creador sea el usuario actual
-        const creadas = data.filter(p => p.creadorId === user.firebaseUid);
+        const creadas = data.filter(p => p.usuarioId === user.firebaseUid);
         setPlaylistsCreadas(creadas);
       })
       .catch(() => setPlaylistsCreadas([]));
+  }, [user]);
+
+  // Cargar playlists unidas por el usuario
+  useEffect(() => {
+    if (!user?.firebaseUid) return;
+    fetch(`http://partysync-react.us-east-1.elasticbeanstalk.com/api/v1/usuario/${user.firebaseUid}/unidas`)
+      .then(res => res.json())
+      .then(data => setPlaylistsUnidas(data))
+      .catch(() => setPlaylistsUnidas([]));
   }, [user]);
 
   return (
